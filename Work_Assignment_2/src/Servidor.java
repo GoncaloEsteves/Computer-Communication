@@ -1,23 +1,36 @@
-import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.ServerSocket;
+
 
 public class Servidor {
     /**
      * Main da classe Servidor
-     * @param args
-     * @throws Exception
+     * @param args Porta que deve escutar
      */
-    public static void main(String[] args) throws Exception {
-        ServerSocket servidor = new ServerSocket(12345);
+    public static void main(String[] args){
 
-        int i = 0;
-        while(true){
-            Socket cliente = servidor.accept(); /* Socket que liga o cliente ao servidor */
+        if(args.length != 1){
+            System.out.println("Argumentos Inválidos: Servidor <Port>\n");
+            return;
+        }
 
-            System.out.println("Ligou-se um cliente ao servidor.");
+        try{
+            //socket que irá aceitar as ligacoes dos Anons(servidor)
+            ServerSocket servidor = new ServerSocket(Integer.parseInt(args[0]));
 
-            Thread c = new Thread(new WorkThread(cliente)); /* Thread responsável pela execução daquilo que o cliente pretende, ao interagir com o servidor */
-            c.start();
+            while(true){
+                //aceitacao das ligacoes dos Anons(servidor)
+                Socket cliente = servidor.accept();
+
+                System.out.println("Ligou-se um cliente ao servidor.");
+
+                //criacao da Thread responsavel por processar os comandos enviados pelo Anon(servidor)
+                Thread c = new Thread(new ServThread(cliente));
+                c.start();
+            }
+        }
+        catch (Exception e){
+            e.printStackTrace();
         }
     }
 }

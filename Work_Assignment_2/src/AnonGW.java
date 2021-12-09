@@ -1,23 +1,34 @@
-import java.net.ServerSocket;
 import java.net.Socket;
 
+
 public class AnonGW {
+
     /**
-     * Main da classe Servidor
-     * @param args
-     * @throws Exception
+     * Main da classe AnonGW
+     * @param args   Servidor, Porta de Conexao e os restantes Anons ativos
      */
-    public static void main(String[] args) throws Exception {
-        ServerSocket servidor = new ServerSocket(1234);
+    public static void main(String[] args){
+        if(args.length < 3){
+            System.out.println("Argumentos Insuficientes: AnonGW <Servidor> <Port> <Anons (1 ou mais)>\n");
+            return;
+        }
 
-        int i = 0;
-        while(true){
-            Socket cliente = servidor.accept(); /* Socket que liga o cliente ao servidor */
+        try{
+            //guardar o registo de quais os Anons existentes na rede
+            String[] aux = new String[args.length-2];
+            for(int i = 0; i < args.length-2; i++)
+                aux[i] = args[i+2];
 
-            System.out.println("Ligou-se um cliente ao anon.");
+            //criacao da Thread responsavel por aceitar ligacoes de Clientes
+            Thread tc = new Thread(new AnonGWThread2Cliente(aux));
+            tc.start();
 
-            Thread c = new Thread(new AnonGWThread(cliente)); /* Thread responsável pela execução daquilo que o cliente pretende, ao interagir com o servidor */
-            c.start();
+            //criacao da Thread responsavel pela ligacao ao Servidor
+            Thread ts = new Thread(new AnonGWThread2Servidor(args[0], Integer.parseInt(args[1])));
+            ts.start();
+        }
+        catch(Exception e){
+            e.printStackTrace();
         }
     }
 }
